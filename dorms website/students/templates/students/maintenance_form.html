@@ -1,0 +1,24 @@
+{% extends "students/base.html" %}
+{% block title %}New Maintenance Request | GU Dorms{% endblock %}
+{% block page_title %}New Maintenance Request{% endblock %}
+{% block content %}
+<section class="form-card">
+    {% if assignment %}
+        <p class="muted">This request will be linked to room {{ assignment.room.room_number }} in {{ assignment.room.building.building_name }}.</p>
+    {% else %}
+        <p class="muted">No active room assignment found; the request will be saved without a RoomID because the schema allows RoomID to be null.</p>
+    {% endif %}
+    <form method="post" class="stack-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <label>
+                <span>{{ field.label }}</span>
+                {{ field }}
+                {{ field.errors }}
+            </label>
+        {% endfor %}
+        <button class="primary-button" type="submit">Submit request</button>
+    </form>
+</section>
+{% endblock %}

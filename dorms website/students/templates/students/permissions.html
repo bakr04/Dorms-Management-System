@@ -1,0 +1,73 @@
+{% extends "students/base.html" %}
+{% block title %}Permissions | GU Dorms{% endblock %}
+{% block page_title %}Permissions{% endblock %}
+{% block content %}
+<div class="button-row">
+    <a class="primary-button" href="{% url 'students:leave_permission_create' %}">Request leave</a>
+    <a class="secondary-button" href="{% url 'students:visitor_permission_create' %}">Request visitor access</a>
+</div>
+
+<section class="split-grid">
+    <article class="card">
+        <div class="section-heading">
+            <h2>Leave permissions</h2>
+        </div>
+        {% for item in leave_permissions %}
+            <div class="list-row">
+                <div>
+                    <strong>{{ item.start_date|date:"M j, Y" }} → {{ item.end_date|date:"M j, Y" }}</strong>
+                    <p>
+                        {{ item.reason|default:"No reason provided"|truncatechars:90 }}
+                        {% if item.approval_date %} · Decision {{ item.approval_date|date:"M j, Y" }}{% endif %}
+                    </p>
+                    {% if item.notes %}
+                        <p>{{ item.notes }}</p>
+                    {% endif %}
+                </div>
+                <div class="row-actions">
+                    <span class="badge {{ item.status|lower }}">{{ item.status }}</span>
+                    {% if item.status in "Pending,Approved" %}
+                        <form method="post" action="{% url 'students:leave_permission_cancel' item.permission_id %}" class="inline-form">
+                            {% csrf_token %}
+                            <button type="submit" class="text-button danger">Cancel</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p class="muted">No leave requests yet.</p>
+        {% endfor %}
+    </article>
+
+    <article class="card">
+        <div class="section-heading">
+            <h2>Visitor permissions</h2>
+        </div>
+        {% for item in visitor_permissions %}
+            <div class="list-row">
+                <div>
+                    <strong>{{ item.visitor.first_name }} {{ item.visitor.last_name }}</strong>
+                    <p>
+                        {{ item.start_date|date:"M j, Y" }} → {{ item.end_date|date:"M j, Y" }}
+                        {% if item.approval_date %} · Decision {{ item.approval_date|date:"M j, Y" }}{% endif %}
+                    </p>
+                    {% if item.notes %}
+                        <p>{{ item.notes }}</p>
+                    {% endif %}
+                </div>
+                <div class="row-actions">
+                    <span class="badge {{ item.status|lower }}">{{ item.status }}</span>
+                    {% if item.status in "Pending,Approved" %}
+                        <form method="post" action="{% url 'students:visitor_permission_cancel' item.permission_id %}" class="inline-form">
+                            {% csrf_token %}
+                            <button type="submit" class="text-button danger">Cancel</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p class="muted">No visitor requests yet.</p>
+        {% endfor %}
+    </article>
+</section>
+{% endblock %}

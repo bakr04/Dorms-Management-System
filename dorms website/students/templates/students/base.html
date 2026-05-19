@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GU Dorms Student Portal{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'students/css/styles.css' %}?v=20260518b">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="{% url 'students:dashboard' %}">
+                <span class="brand-mark">GU</span>
+                <span>
+                    <strong>GU Dorms</strong>
+                    <small>Student Portal</small>
+                </span>
+            </a>
+            <nav class="nav">
+                <a href="{% url 'students:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
+                <a href="{% url 'students:my_room' %}" class="{% if request.resolver_match.url_name == 'my_room' %}active{% endif %}">My Room</a>
+                {% if student_accommodation_is_accepted %}
+                    <a href="{% url 'students:roommates' %}" class="{% if request.resolver_match.url_name == 'roommates' %}active{% endif %}">Roommates</a>
+                    <a href="{% url 'students:requests' %}" class="{% if request.resolver_match.url_name == 'requests' %}active{% endif %}">Requests</a>
+                    <a href="{% url 'students:announcements' %}" class="{% if request.resolver_match.url_name == 'announcements' %}active{% endif %}">
+                        Announcements
+                        {% if nav_unread_notices %}
+                            <span class="pill">{{ nav_unread_notices }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'students:payments' %}" class="{% if request.resolver_match.url_name == 'payments' %}active{% endif %}">Payments</a>
+                    <a href="{% url 'students:records' %}" class="{% if request.resolver_match.url_name == 'records' %}active{% endif %}">My Records</a>
+                {% endif %}
+                <a href="{% url 'students:applications' %}" class="{% if request.resolver_match.url_name == 'applications' %}active{% endif %}">Applications</a>
+                {% if student_accommodation_is_accepted %}
+                    <a href="{% url 'students:permissions' %}" class="{% if request.resolver_match.url_name == 'permissions' %}active{% endif %}">Permissions</a>
+                    <a href="{% url 'students:services' %}" class="{% if request.resolver_match.url_name == 'services' %}active{% endif %}">Services</a>
+                {% endif %}
+                <a href="{% url 'students:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">Profile</a>
+            </nav>
+            <form method="post" action="{% url 'students:logout' %}" class="logout-form">
+                {% csrf_token %}
+                <button type="submit" class="ghost-button">Logout</button>
+            </form>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">Student interaction system</p>
+                    <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+                </div>
+                {% if current_student %}
+                    <div class="student-chip">
+                        <span>{{ current_student.first_name|first }}{{ current_student.last_name|first }}</span>
+                        <div>
+                            <strong>{{ current_student.first_name }} {{ current_student.last_name }}</strong>
+                            <small>{{ current_student.student_id }}</small>
+                        </div>
+                    </div>
+                {% endif %}
+            </header>
+
+            {% if messages %}
+                <section class="flash-stack">
+                    {% for message in messages %}
+                        <div class="flash {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </section>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

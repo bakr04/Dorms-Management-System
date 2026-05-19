@@ -1,0 +1,21 @@
+{% extends "students/base.html" %}
+{% block title %}Request Visitor Access | GU Dorms{% endblock %}
+{% block page_title %}Request Visitor Access{% endblock %}
+{% block content %}
+<section class="form-card">
+    <form method="post" class="grid-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <label>
+                <span>{{ field.label }}</span>
+                {{ field }}
+                {{ field.errors }}
+            </label>
+        {% endfor %}
+        <div class="form-actions">
+            <button class="primary-button" type="submit">Submit visitor request</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

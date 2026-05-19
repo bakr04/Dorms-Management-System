@@ -1,0 +1,124 @@
+{% extends "students/base.html" %}
+{% block title %}Dashboard | GU Dorms{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+<section class="hero-panel">
+    <div>
+        <p class="eyebrow">Hello, {{ current_student.first_name }}</p>
+        <h2>Your dorm life at a glance.</h2>
+        <p>
+            {% if assignment %}
+                You are assigned to {{ assignment.room.building.building_name }}, room {{ assignment.room.room_number }}.
+            {% else %}
+                You do not currently have an active room assignment.
+            {% endif %}
+        </p>
+    </div>
+    <div class="metric-inline">
+        <strong>{{ unread_announcements|add:unread_notifications }}</strong>
+        <span>unread notices</span>
+    </div>
+</section>
+
+{% if active_blacklist or pending_penalty_count or open_incident_count %}
+    <section class="alert-grid">
+        {% if active_blacklist %}
+            <article class="alert-card danger">
+                <strong>Active blacklist record</strong>
+                <p>{{ active_blacklist.severity_level }} severity{% if active_blacklist.is_permanent %} · permanent{% endif %}</p>
+            </article>
+        {% endif %}
+        {% if pending_penalty_count %}
+            <article class="alert-card warning">
+                <strong>{{ pending_penalty_count }} pending penalt{{ pending_penalty_count|pluralize:"y,ies" }}</strong>
+                <p>EGP {{ pending_penalty_total }} currently outstanding.</p>
+            </article>
+        {% endif %}
+        {% if open_incident_count %}
+            <article class="alert-card warning">
+                <strong>{{ open_incident_count }} open incident{{ open_incident_count|pluralize }}</strong>
+                <p>
+                    {% if student_accommodation_is_accepted %}
+                        Review details in My Records.
+                    {% else %}
+                        Review details with student affairs.
+                    {% endif %}
+                </p>
+            </article>
+        {% endif %}
+    </section>
+{% endif %}
+
+<section class="card-grid four">
+    <article class="metric-card">
+        <span>Room</span>
+        <strong>{% if assignment %}{{ assignment.room.room_number }}{% else %}—{% endif %}</strong>
+        <small>{% if assignment %}{{ assignment.room.building.building_name }}{% else %}Awaiting assignment{% endif %}</small>
+    </article>
+    <article class="metric-card">
+        <span>Maintenance</span>
+        <strong>{{ active_maintenance_count }}</strong>
+        <small>active requests</small>
+    </article>
+    <article class="metric-card">
+        <span>Complaints</span>
+        <strong>{{ open_complaint_count }}</strong>
+        <small>open items</small>
+    </article>
+    <article class="metric-card">
+        <span>Outstanding fees</span>
+        <strong>EGP {{ unpaid_total }}</strong>
+        <small>
+            {% if pending_penalty_count %}
+                Pending penalties: EGP {{ pending_penalty_total }}
+            {% elif latest_application %}
+                Latest application: {{ latest_application.status }}
+            {% else %}
+                No applications yet
+            {% endif %}
+        </small>
+    </article>
+</section>
+
+<section class="split-grid">
+    <article class="card">
+        <div class="section-heading">
+            <h2>Recent announcements</h2>
+            {% if student_accommodation_is_accepted %}
+                <a href="{% url 'students:announcements' %}">View all</a>
+            {% endif %}
+        </div>
+        {% for announcement in announcements %}
+            <div class="list-row">
+                <div>
+                    <strong>{{ announcement.title }}</strong>
+                    <p>{{ announcement.message_body|truncatechars:120 }}</p>
+                </div>
+                <span class="badge {{ announcement.priority_level|lower }}">{{ announcement.priority_level }}</span>
+            </div>
+        {% empty %}
+            <p class="muted">No published announcements right now.</p>
+        {% endfor %}
+    </article>
+
+    <article class="card">
+        <div class="section-heading">
+            <h2>Latest maintenance</h2>
+            {% if student_accommodation_is_accepted %}
+                <a href="{% url 'students:requests' %}">Open requests</a>
+            {% endif %}
+        </div>
+        {% for item in latest_requests %}
+            <div class="list-row">
+                <div>
+                    <strong>{{ item.title }}</strong>
+                    <p>{{ item.category|default:"General" }} · {{ item.reported_at|date:"M j, Y" }}</p>
+                </div>
+                <span class="badge {{ item.status|lower|slugify }}">{{ item.status }}</span>
+            </div>
+        {% empty %}
+            <p class="muted">No maintenance requests submitted yet.</p>
+        {% endfor %}
+    </article>
+</section>
+{% endblock %}

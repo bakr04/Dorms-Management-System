@@ -1,0 +1,19 @@
+{% extends "students/base.html" %}
+{% block title %}Request Leave | GU Dorms{% endblock %}
+{% block page_title %}Request Leave{% endblock %}
+{% block content %}
+<section class="form-card">
+    <form method="post" class="stack-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <label>
+                <span>{{ field.label }}</span>
+                {{ field }}
+                {{ field.errors }}
+            </label>
+        {% endfor %}
+        <button class="primary-button" type="submit">Submit leave request</button>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "students/auth_base.html" %}
+{% block title %}Student Registration{% endblock %}
+{% block content %}
+<section class="form-card wide-card">
+    <p class="eyebrow">Start here</p>
+    <h1>Create your student account</h1>
+    <p class="muted">Existing students can claim an account only when the submitted identity fields match the existing student record.</p>
+    <form method="post" class="grid-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <label>
+                <span>{{ field.label }}</span>
+                {{ field }}
+                {{ field.errors }}
+            </label>
+        {% endfor %}
+        <div class="form-actions">
+            <button class="primary-button" type="submit">Create account</button>
+            <a class="secondary-button" href="{% url 'students:login' %}">Already registered</a>
+        </div>
+    </form>
+</section>
+{{ programs_by_faculty|json_script:"programs-by-faculty" }}
+<script>
+    (() => {
+        const facultySelect = document.getElementById("id_faculty");
+        const programSelect = document.getElementById("id_program");
+        const programsByFacultyNode = document.getElementById("programs-by-faculty");
+        if (!facultySelect || !programSelect || !programsByFacultyNode) {
+            return;
+        }
+
+        const programsByFaculty = JSON.parse(programsByFacultyNode.textContent);
+        const selectedProgram = programSelect.value;
+
+        const renderPrograms = (facultyId, preferredValue = "") => {
+            const programs = programsByFaculty[facultyId] || [];
+            programSelect.innerHTML = "";
+            programSelect.add(new Option(facultyId ? "---------" : "Select a faculty first", ""));
+            for (const program of programs) {
+                programSelect.add(new Option(program.name, program.id));
+            }
+            programSelect.disabled = !facultyId;
+            if (preferredValue && programs.some((program) => program.id === preferredValue)) {
+                programSelect.value = preferredValue;
+            }
+        };
+
+        renderPrograms(facultySelect.value, selectedProgram);
+        facultySelect.addEventListener("change", () => {
+            renderPrograms(facultySelect.value);
+        });
+    })();
+</script>
+{% endblock %}

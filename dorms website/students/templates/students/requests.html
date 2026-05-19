@@ -1,0 +1,72 @@
+{% extends "students/base.html" %}
+{% block title %}Requests | GU Dorms{% endblock %}
+{% block page_title %}Requests{% endblock %}
+{% block content %}
+<div class="button-row">
+    <a class="primary-button" href="{% url 'students:maintenance_create' %}">New maintenance request</a>
+    <a class="secondary-button" href="{% url 'students:complaint_create' %}">New complaint</a>
+</div>
+
+<section class="split-grid">
+    <article class="card">
+        <div class="section-heading">
+            <h2>Maintenance</h2>
+        </div>
+        {% for item in maintenance_requests %}
+            <div class="list-row">
+                <div>
+                    <strong>{{ item.title }}</strong>
+                    <p>{{ item.category|default:"General" }} · {{ item.reported_at|date:"M j, Y" }}</p>
+                    {% if item.resolution_note %}
+                        <p>Resolution: {{ item.resolution_note }}</p>
+                    {% endif %}
+                    {% for log in item.ordered_logs %}
+                        <p class="subtle-line">
+                            Update {{ log.logged_at|date:"M j, Y g:i A" }}: {{ log.action_taken }}
+                        </p>
+                    {% endfor %}
+                </div>
+                <div class="row-actions">
+                    <span class="badge {{ item.status|lower|slugify }}">{{ item.status }}</span>
+                    {% if item.status in "Open,In Progress" %}
+                        <form method="post" action="{% url 'students:maintenance_cancel' item.request_id %}" class="inline-form">
+                            {% csrf_token %}
+                            <button type="submit" class="text-button danger">Cancel</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p class="muted">No maintenance requests yet.</p>
+        {% endfor %}
+    </article>
+
+    <article class="card">
+        <div class="section-heading">
+            <h2>Complaints</h2>
+        </div>
+        {% for item in complaints %}
+            <div class="list-row">
+                <div>
+                    <strong>{{ item.subject }}</strong>
+                    <p>{{ item.category|default:"General" }} · {{ item.submitted_at|date:"M j, Y" }}</p>
+                    {% if item.resolution_notes %}
+                        <p>Resolution: {{ item.resolution_notes }}</p>
+                    {% endif %}
+                </div>
+                <div class="row-actions">
+                    <span class="badge {{ item.status|lower|slugify }}">{{ item.status }}</span>
+                    {% if item.status in "Open,In Progress" %}
+                        <form method="post" action="{% url 'students:complaint_cancel' item.complaint_id %}" class="inline-form">
+                            {% csrf_token %}
+                            <button type="submit" class="text-button danger">Cancel</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p class="muted">No complaints yet.</p>
+        {% endfor %}
+    </article>
+</section>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "students/auth_base.html" %}
+{% block title %}Student Login{% endblock %}
+{% block content %}
+<section class="form-card narrow-card">
+    <p class="eyebrow">Welcome back</p>
+    <h1>Student login</h1>
+    <form method="post" class="stack-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <label>
+                <span>{{ field.label }}</span>
+                {{ field }}
+                {{ field.errors }}
+            </label>
+        {% endfor %}
+        <button class="primary-button" type="submit">Log in</button>
+    </form>
+    <p class="muted">Need an account? <a href="{% url 'students:register' %}">Register here</a>.</p>
+</section>
+{% endblock %}

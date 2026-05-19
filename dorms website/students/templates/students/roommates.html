@@ -1,0 +1,34 @@
+{% extends "students/base.html" %}
+{% block title %}Roommates | GU Dorms{% endblock %}
+{% block page_title %}Roommates{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Roommates</h2>
+    {% if assignment %}
+        <p class="muted">Derived from active RoomAssignment rows for room {{ assignment.room.room_number }}.</p>
+        <div class="people-grid">
+            {% for roommate in roommates %}
+                <article class="person-card">
+                    <span>{{ roommate.first_name|first }}{{ roommate.last_name|first }}</span>
+                    <div>
+                        <strong>{{ roommate.first_name }} {{ roommate.last_name }}</strong>
+                        <small>{{ roommate.program.name|default:"Program not listed" }}</small>
+                    </div>
+                </article>
+            {% empty %}
+                <p class="muted">No other active roommates are currently assigned to your room.</p>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="muted">Roommate information appears after you receive an active room assignment.</p>
+    {% endif %}
+</section>
+
+<section class="card callout">
+    <h2>Community tools are not in the current schema</h2>
+    <p>
+        The database has no message, chat, thread, or community-post tables. This page therefore shows only roommate visibility supported by
+        <strong>RoomAssignment</strong>; direct messaging and dorm discussions are intentionally not implemented.
+    </p>
+</section>
+{% endblock %}

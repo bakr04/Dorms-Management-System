@@ -1,0 +1,58 @@
+{% extends "students/base.html" %}
+{% block title %}Announcements | GU Dorms{% endblock %}
+{% block page_title %}Announcements{% endblock %}
+{% block content %}
+<section class="split-grid">
+    <article class="card">
+        <div class="section-heading">
+            <h2>Dorm announcements</h2>
+        </div>
+        {% for item in announcements %}
+            <div class="notice-card">
+                <div class="section-heading compact">
+                    <strong>{{ item.title }}</strong>
+                    <span class="badge {{ item.priority_level|lower }}">{{ item.priority_level }}</span>
+                </div>
+                <p>{{ item.message_body }}</p>
+                <small>{{ item.publish_date|date:"M j, Y · g:i A" }}</small>
+                {% if not item.is_read_for_student %}
+                    <form method="post" action="{% url 'students:mark_announcement_read' item.announcement_id %}">
+                        {% csrf_token %}
+                        <button class="link-button" type="submit">Mark as read</button>
+                    </form>
+                {% else %}
+                    <span class="muted">Read</span>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p class="muted">No active published announcements.</p>
+        {% endfor %}
+    </article>
+
+    <article class="card">
+        <div class="section-heading">
+            <h2>My notifications</h2>
+        </div>
+        {% for item in notifications %}
+            <div class="notice-card">
+                <div class="section-heading compact">
+                    <strong>{{ item.title }}</strong>
+                    <span class="badge {{ item.priority_level|lower }}">{{ item.priority_level }}</span>
+                </div>
+                <p>{{ item.message }}</p>
+                <small>{{ item.publish_date|date:"M j, Y · g:i A" }}</small>
+                {% if not item.is_read %}
+                    <form method="post" action="{% url 'students:mark_notification_read' item.notification_id %}">
+                        {% csrf_token %}
+                        <button class="link-button" type="submit">Mark as read</button>
+                    </form>
+                {% else %}
+                    <span class="muted">Read</span>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p class="muted">No personal notifications yet.</p>
+        {% endfor %}
+    </article>
+</section>
+{% endblock %}

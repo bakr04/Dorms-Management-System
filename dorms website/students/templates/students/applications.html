@@ -1,0 +1,45 @@
+{% extends "students/base.html" %}
+{% block title %}Applications | GU Dorms{% endblock %}
+{% block page_title %}Applications{% endblock %}
+{% block content %}
+<div class="button-row">
+    <a class="primary-button" href="{% url 'students:application_create' %}">New dorm application</a>
+</div>
+
+<section class="card">
+    <div class="section-heading">
+        <h2>My dorm applications</h2>
+    </div>
+    {% for item in applications %}
+        <div class="list-row">
+            <div>
+                <strong>{% if item.semester %}{{ item.semester.name }} · {{ item.semester.academic_year }}{% else %}No semester selected{% endif %}</strong>
+                <p>
+                    Applied {{ item.application_date|date:"M j, Y" }}
+                    {% if item.start_date %} · Requested start {{ item.start_date|date:"M j, Y" }}{% endif %}
+                    {% if item.approval_date %} · Decision {{ item.approval_date|date:"M j, Y" }}{% endif %}
+                    {% with assignment=item.ordered_assignments.0 %}
+                        {% if assignment %}
+                            · Assigned {{ assignment.room.building.building_name }} {{ assignment.room.room_number }}
+                        {% endif %}
+                    {% endwith %}
+                    {% if item.status == "Approved" and not item.ordered_assignments %}
+                        · Approved, awaiting room assignment
+                    {% endif %}
+                </p>
+            </div>
+            <div class="row-actions">
+                <span class="badge {{ item.status|lower }}">{{ item.status }}</span>
+                {% if item.status in "Pending,Waitlisted" %}
+                    <form method="post" action="{% url 'students:application_cancel' item.application_id %}" class="inline-form">
+                        {% csrf_token %}
+                        <button type="submit" class="text-button danger">Cancel</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <p class="muted">No applications submitted yet.</p>
+    {% endfor %}
+</section>
+{% endblock %}

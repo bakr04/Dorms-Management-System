@@ -1,0 +1,16 @@
+{% extends "students/auth_base.html" %}
+{% block title %}GU Dorms Student Portal{% endblock %}
+{% block content %}
+<section class="hero-card">
+    <p class="eyebrow">Dorm life, one calm surface</p>
+    <h1>Everything students need after move-in—and before it.</h1>
+    <p>
+        View your room, follow requests, read notices, submit applications, and keep your dorm life moving
+        without stepping into staff-only workflows.
+    </p>
+    <div class="button-row">
+        <a class="primary-button" href="{% url 'students:login' %}">Log in</a>
+        <a class="secondary-button" href="{% url 'students:register' %}">Create student account</a>
+    </div>
+</section>
+{% endblock %}

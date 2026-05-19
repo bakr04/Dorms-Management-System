@@ -1,0 +1,64 @@
+{% extends "students/base.html" %}
+{% block title %}My Records | GU Dorms{% endblock %}
+{% block page_title %}My Records{% endblock %}
+{% block content %}
+<section class="split-grid">
+    <article class="card">
+        <div class="section-heading">
+            <h2>Blacklist status</h2>
+        </div>
+        {% if blacklist_record %}
+            <dl class="details">
+                <div><dt>Status</dt><dd><span class="badge {{ blacklist_record.status|lower }}">{{ blacklist_record.status }}</span></dd></div>
+                <div><dt>Severity</dt><dd>{{ blacklist_record.severity_level }}</dd></div>
+                <div><dt>Permanent</dt><dd>{% if blacklist_record.is_permanent %}Yes{% else %}No{% endif %}</dd></div>
+                <div><dt>Period</dt><dd>{{ blacklist_record.start_date|date:"M j, Y" }} → {{ blacklist_record.end_date|date:"M j, Y"|default:"Open-ended" }}</dd></div>
+                <div><dt>Reason</dt><dd>{{ blacklist_record.reason }}</dd></div>
+                <div><dt>Appeal</dt><dd>{{ blacklist_record.appeal_status }}</dd></div>
+            </dl>
+        {% else %}
+            <p class="muted">No blacklist record found.</p>
+        {% endif %}
+    </article>
+
+    <article class="card">
+        <div class="section-heading">
+            <h2>Penalties</h2>
+        </div>
+        {% for item in penalties %}
+            <div class="list-row">
+                <div>
+                    <strong>{{ item.type }} · EGP {{ item.amount }}</strong>
+                    <p>{{ item.penalty_date|date:"M j, Y" }}{% if item.due_date %} · Due {{ item.due_date|date:"M j, Y" }}{% endif %}</p>
+                    {% if item.reason or item.description %}
+                        <p>{{ item.reason|default:item.description }}</p>
+                    {% endif %}
+                </div>
+                <span class="badge {{ item.status|lower }}">{{ item.status }}</span>
+            </div>
+        {% empty %}
+            <p class="muted">No penalties recorded.</p>
+        {% endfor %}
+    </article>
+</section>
+
+<section class="card">
+    <div class="section-heading">
+        <h2>Incident reports linked to me</h2>
+    </div>
+    {% for item in incidents %}
+        <div class="list-row">
+            <div>
+                <strong>{{ item.title }}</strong>
+                <p>{{ item.incident_date|date:"M j, Y" }} · {{ item.severity_level }}</p>
+                {% if item.resolution_notes %}
+                    <p>Resolution: {{ item.resolution_notes }}</p>
+                {% endif %}
+            </div>
+            <span class="badge {{ item.status|lower }}">{{ item.status }}</span>
+        </div>
+    {% empty %}
+        <p class="muted">No incident reports linked to your student record.</p>
+    {% endfor %}
+</section>
+{% endblock %}

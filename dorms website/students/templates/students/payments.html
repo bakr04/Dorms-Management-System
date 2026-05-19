@@ -1,0 +1,119 @@
+{% extends "students/base.html" %}
+{% block title %}Payments | GU Dorms{% endblock %}
+{% block page_title %}Payments{% endblock %}
+{% block content %}
+<section class="card-grid two">
+    <article class="metric-card">
+        <span>Pending penalties</span>
+        <strong>{{ pending_penalty_count }}</strong>
+        <small>EGP {{ pending_penalty_total }} outstanding</small>
+    </article>
+    <article class="metric-card">
+        <span>Billing note</span>
+        <strong>Read-only</strong>
+        <small>Invoices and penalties come from administration records.</small>
+    </article>
+</section>
+
+<section class="card">
+    <div class="section-heading">
+        <h2>Invoices</h2>
+        <span class="muted">Read-only billing view</span>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Billed</th>
+                    <th>Paid</th>
+                    <th>Balance due</th>
+                    <th>Due date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for invoice in invoices %}
+                    <tr>
+                        <td>{{ invoice.invoice_type }}</td>
+                        <td>EGP {{ invoice.billed_total }}</td>
+                        <td>EGP {{ invoice.paid_amount }}</td>
+                        <td>EGP {{ invoice.balance_due }}</td>
+                        <td>{{ invoice.due_date|date:"M j, Y" }}</td>
+                        <td><span class="badge {{ invoice.payment_status|lower }}">{{ invoice.payment_status }}</span></td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6">No invoices found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="card">
+    <div class="section-heading">
+        <h2>Penalties</h2>
+        <span class="muted">Financial / disciplinary records</span>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Due date</th>
+                    <th>Status</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for penalty in penalties %}
+                    <tr>
+                        <td>{{ penalty.penalty_date|date:"M j, Y" }}</td>
+                        <td>{{ penalty.type }}</td>
+                        <td>EGP {{ penalty.amount }}</td>
+                        <td>{{ penalty.due_date|date:"M j, Y"|default:"—" }}</td>
+                        <td><span class="badge {{ penalty.status|lower }}">{{ penalty.status }}</span></td>
+                        <td>{{ penalty.reason|default:penalty.description|default:"—" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6">No penalties found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="card">
+    <div class="section-heading">
+        <h2>Payment history</h2>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                    <th>Receipt</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in transactions %}
+                    <tr>
+                        <td>{{ payment.payment_date|date:"M j, Y" }}</td>
+                        <td>EGP {{ payment.payment_amount }}</td>
+                        <td>{{ payment.payment_method }}</td>
+                        <td><span class="badge {{ payment.payment_status|lower }}">{{ payment.payment_status }}</span></td>
+                        <td>{{ payment.receipt_number|default:"—" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5">No payment transactions found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

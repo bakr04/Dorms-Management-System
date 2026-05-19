@@ -1,0 +1,61 @@
+{% extends "students/base.html" %}
+{% block title %}Profile | GU Dorms{% endblock %}
+{% block page_title %}Profile{% endblock %}
+{% block content %}
+<section class="split-grid profile-grid">
+    <article class="card">
+        <p class="eyebrow">Read-only identity</p>
+        <h2>{{ current_student.first_name }} {{ current_student.last_name }}</h2>
+        <dl class="details">
+            <div><dt>Student ID</dt><dd>{{ current_student.student_id }}</dd></div>
+            <div><dt>Email</dt><dd>{{ current_student.email }}</dd></div>
+            <div><dt>Faculty</dt><dd>{{ current_student.faculty.name|default:"—" }}</dd></div>
+            <div><dt>Program</dt><dd>{{ current_student.program.name|default:"—" }}</dd></div>
+            <div><dt>GPA</dt><dd>{{ current_student.gpa|default:"—" }}</dd></div>
+            <div><dt>Status</dt><dd>{{ current_student.status }}</dd></div>
+            <div><dt>Disciplinary status</dt><dd>{{ current_student.disciplinary_status }}</dd></div>
+            <div><dt>Room</dt><dd>{% if assignment %}{{ assignment.room.building.building_name }} · {{ assignment.room.room_number }}{% else %}—{% endif %}</dd></div>
+        </dl>
+    </article>
+
+    <article class="card">
+        <p class="eyebrow">Editable student fields</p>
+        <form method="post" class="stack-form">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {% for field in form %}
+                <label>
+                    <span>{{ field.label }}</span>
+                    {{ field }}
+                    {{ field.errors }}
+                </label>
+            {% endfor %}
+            <button class="primary-button" type="submit">Save profile</button>
+        </form>
+    </article>
+</section>
+
+<section class="card">
+    <div class="section-heading">
+        <h2>Emergency contacts</h2>
+        <a href="{% url 'students:emergency_contact_create' %}">Add contact</a>
+    </div>
+    {% for contact in emergency_contacts %}
+        <div class="list-row">
+            <div>
+                <strong>{{ contact.first_name }} {{ contact.last_name }}</strong>
+                <p>{{ contact.relationship|default:"Contact" }} · {{ contact.phone_number }}</p>
+            </div>
+            <div class="inline-actions">
+                <span class="muted">{{ contact.email|default:"" }}</span>
+                <form method="post" action="{% url 'students:emergency_contact_deactivate' contact.contact_id %}">
+                    {% csrf_token %}
+                    <button class="link-button danger-link" type="submit">Remove</button>
+                </form>
+            </div>
+        </div>
+    {% empty %}
+        <p class="muted">No active emergency contacts listed yet.</p>
+    {% endfor %}
+</section>
+{% endblock %}

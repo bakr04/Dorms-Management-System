@@ -1,0 +1,127 @@
+{% extends "students/base.html" %}
+{% block title %}Services | GU Dorms{% endblock %}
+{% block page_title %}Services{% endblock %}
+{% block content %}
+<div class="button-row">
+    <a class="primary-button" href="{% url 'students:lost_found_create' %}">Report found item</a>
+</div>
+
+<section class="card">
+    <div class="section-heading">
+        <h2>Available dorm services</h2>
+    </div>
+    {% for service in active_services %}
+        <div class="list-row">
+            <div>
+                <strong>{{ service.name }}</strong>
+                <p>
+                    {{ service.type|default:"Service" }}
+                    {% if service.building %} · {{ service.building.building_name }}{% endif %}
+                    {% if service.service_location %} · {{ service.service_location }}{% endif %}
+                </p>
+                {% if service.operating_hours or service.contact_number %}
+                    <p>{{ service.operating_hours|default:"Hours not listed" }}{% if service.contact_number %} · {{ service.contact_number }}{% endif %}</p>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <p class="muted">No active dorm services listed.</p>
+    {% endfor %}
+</section>
+
+<section class="split-grid">
+    <article class="card">
+        <div class="section-heading">
+            <h2>Meal subscriptions</h2>
+        </div>
+        {% for item in meal_subscriptions %}
+            <div class="list-row">
+                <div>
+                    <strong>{{ item.start_date|date:"M j, Y" }} → {{ item.end_date|date:"M j, Y" }}</strong>
+                    <p>{{ item.meals_per_day }} meal(s) / day{% if item.dietary_preference %} · {{ item.dietary_preference }}{% endif %}</p>
+                </div>
+                <span class="badge {{ item.status|lower }}">{{ item.status }}</span>
+            </div>
+        {% empty %}
+            <p class="muted">No meal subscriptions listed.</p>
+        {% endfor %}
+    </article>
+
+    <article class="card">
+        <div class="section-heading">
+            <h2>Recent meal attendance</h2>
+        </div>
+        {% for item in meal_attendance %}
+            <div class="list-row">
+                <div>
+                    <strong>{{ item.meal_type }}</strong>
+                    <p>{{ item.meal_date|date:"M j, Y" }} · {{ item.verification_method }}</p>
+                </div>
+                <span class="badge {{ item.attendance_status|lower }}">{{ item.attendance_status }}</span>
+            </div>
+        {% empty %}
+            <p class="muted">No meal attendance records yet.</p>
+        {% endfor %}
+    </article>
+</section>
+
+<section class="split-grid">
+    <article class="card">
+        <div class="section-heading">
+            <h2>Laundry usage</h2>
+        </div>
+        {% for item in laundry_usage %}
+            <div class="list-row">
+                <div>
+                    <strong>{{ item.laundry.type }}{% if item.laundry.building %} · {{ item.laundry.building.building_name }}{% endif %}</strong>
+                    <p>{{ item.usage_date|date:"M j, Y g:i A" }}{% if item.duration %} · {{ item.duration }} min{% endif %}</p>
+                </div>
+            </div>
+        {% empty %}
+            <p class="muted">No laundry usage recorded yet.</p>
+        {% endfor %}
+    </article>
+
+    <article class="card">
+        <div class="section-heading">
+            <h2>Recent access history</h2>
+        </div>
+        {% for item in access_logs %}
+            <div class="list-row">
+                <div>
+                    <strong>{{ item.access_type }}{% if item.building %} · {{ item.building.building_name }}{% endif %}</strong>
+                    <p>{{ item.log_time|date:"M j, Y g:i A" }} · {{ item.method }}</p>
+                </div>
+                <span class="badge {{ item.status|lower }}">{{ item.status }}</span>
+            </div>
+        {% empty %}
+            <p class="muted">No access records available.</p>
+        {% endfor %}
+    </article>
+</section>
+
+<section class="card">
+    <div class="section-heading">
+        <h2>My lost &amp; found reports</h2>
+    </div>
+    {% for item in lost_found_reports %}
+        <div class="list-row">
+            <div>
+                <strong>{{ item.item_name }}</strong>
+                <p>{{ item.location_found|default:"Location not provided" }} · Reported {{ item.report_date|date:"M j, Y" }}</p>
+            </div>
+            <div class="row-actions">
+                <span class="badge {{ item.status|lower }}">{{ item.status }}</span>
+                {% if item.status in "Open,Pending" %}
+                    <form method="post" action="{% url 'students:lost_found_cancel' item.item_id %}" class="inline-form">
+                        {% csrf_token %}
+                        <button type="submit" class="text-button danger">Cancel</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <p class="muted">No lost and found reports submitted yet.</p>
+    {% endfor %}
+</section>
+{% endblock %}

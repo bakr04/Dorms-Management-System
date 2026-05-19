@@ -1,0 +1,144 @@
+{% extends "students/base.html" %}
+{% block title %}My Room | GU Dorms{% endblock %}
+{% block page_title %}My Room{% endblock %}
+{% block content %}
+{% if assignment %}
+    <section class="card room-card">
+        <div>
+            <p class="eyebrow">Current assignment</p>
+            <h2>{{ assignment.room.building.building_name }} · Room {{ assignment.room.room_number }}</h2>
+            <p>Floor {{ assignment.room.floor_number }} · {{ assignment.room.room_type.name|default:"Room type not set" }}</p>
+        </div>
+        <div class="room-meta">
+            <span>Bed: {% if assignment.bed_slot %}{{ assignment.bed_slot.bed_number }}{% else %}Not assigned{% endif %}</span>
+            <span>Check-in: {{ assignment.check_in_date|date:"M j, Y" }}</span>
+            <span>Status: {{ assignment.status }}</span>
+            <span>Condition: {{ assignment.room.furniture_condition }}</span>
+            {% if assignment.monthly_rent %}<span>Contract rent: EGP {{ assignment.monthly_rent }}</span>{% endif %}
+            {% if assignment.deposit_amount %}<span>Contract deposit: EGP {{ assignment.deposit_amount }}</span>{% endif %}
+            {% if assignment.room.room_type %}
+                <span>Room type: {{ assignment.room.room_type.furniture_level }} furniture · {{ assignment.room.room_type.internet_speed }} internet</span>
+            {% endif %}
+            {% if assignment.room.has_ac or assignment.room.has_private_bathroom or assignment.room.has_kitchenette %}
+                <span>
+                    Amenities:
+                    {% if assignment.room.has_ac %}AC{% endif %}
+                    {% if assignment.room.has_private_bathroom %}{% if assignment.room.has_ac %} · {% endif %}Private bath{% endif %}
+                    {% if assignment.room.has_kitchenette %}{% if assignment.room.has_ac or assignment.room.has_private_bathroom %} · {% endif %}Kitchenette{% endif %}
+                </span>
+            {% endif %}
+        </div>
+    </section>
+    <div class="button-row">
+        <a class="primary-button" href="{% url 'students:room_transfer_create' %}">Request room transfer</a>
+    </div>
+{% else %}
+    <section class="card">
+        <h2>No active room assignment</h2>
+        <p class="muted">You can still browse the room directory and submit a dorm application.</p>
+        <a class="primary-button" href="{% url 'students:application_create' %}">Apply for accommodation</a>
+    </section>
+{% endif %}
+
+<section class="card">
+    <div class="section-heading">
+        <h2>Room directory</h2>
+        <span class="muted">All rooms from the Room table</span>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Building</th>
+                    <th>Room</th>
+                    <th>Floor</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Capacity</th>
+                    <th>Open beds</th>
+                    <th>For you</th>
+                    <th>Monthly rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for room in room_catalog %}
+                    <tr>
+                        <td>{{ room.building.building_name }}</td>
+                        <td>{{ room.room_number }}</td>
+                        <td>{{ room.floor_number }}</td>
+                        <td>{{ room.room_type.name|default:"—" }}</td>
+                        <td>{{ room.status }}</td>
+                        <td>{{ room.capacity }}</td>
+                        <td>{{ room.available_beds }}</td>
+                        <td>
+                            {% if room.can_request %}
+                                <span class="badge available">Can request</span>
+                            {% else %}
+                                {{ room.portal_label }}
+                            {% endif %}
+                        </td>
+                        <td>{% if room.monthly_rate %}EGP {{ room.monthly_rate }}{% else %}—{% endif %}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="9">No rooms found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="card">
+    <div class="section-heading">
+        <h2>Transfer requests</h2>
+    </div>
+    {% for transfer in room_transfers %}
+        <div class="list-row">
+            <div>
+                <strong>{{ transfer.from_room.building.building_name }} {{ transfer.from_room.room_number }} → {{ transfer.to_room.building.building_name }} {{ transfer.to_room.room_number }}</strong>
+                <p>
+                    {{ transfer.request_date|date:"M j, Y" }} · {{ transfer.priority_level }}
+                    {% if transfer.approval_date %} · Approved {{ transfer.approval_date|date:"M j, Y" }}{% endif %}
+                    {% if transfer.effective_move_date %} · Move {{ transfer.effective_move_date|date:"M j, Y" }}{% endif %}
+                </p>
+            </div>
+            <div class="row-actions">
+                <span class="badge {{ transfer.status|lower }}">{{ transfer.status }}</span>
+                {% if transfer.status in "Pending,Approved" %}
+                    <form method="post" action="{% url 'students:room_transfer_cancel' transfer.transfer_id %}" class="inline-form">
+                        {% csrf_token %}
+                        <button type="submit" class="text-button danger">Cancel</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <p class="muted">No room transfer requests yet.</p>
+    {% endfor %}
+</section>
+
+<section class="card">
+    <div class="section-heading">
+        <h2>Recent room inspections</h2>
+    </div>
+    {% for inspection in room_inspections %}
+        <div class="list-row">
+            <div>
+                <strong>{{ inspection.inspection_date|date:"M j, Y" }} · {{ inspection.status }}</strong>
+                <p>
+                    Cleanliness {{ inspection.cleanliness_score|default:"—" }}
+                    · Safety {{ inspection.safety_score|default:"—" }}
+                    · Damage {{ inspection.damage_level }}
+                </p>
+                {% if inspection.recommendation %}
+                    <p>{{ inspection.recommendation }}</p>
+                {% endif %}
+            </div>
+            {% if inspection.follow_up_required %}
+                <span class="badge pending">Follow-up</span>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p class="muted">No room inspections recorded yet.</p>
+    {% endfor %}
+</section>
+{% endblock %}

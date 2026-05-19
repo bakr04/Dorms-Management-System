@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GU Dorms{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'students/css/styles.css' %}?v=20260518b">
+</head>
+<body class="auth-body">
+    <main class="auth-shell">
+        <a class="brand auth-brand" href="{% url 'students:landing' %}">
+            <span class="brand-mark">GU</span>
+            <span>
+                <strong>GU Dorms</strong>
+                <small>Student Portal</small>
+            </span>
+        </a>
+        {% if messages %}
+            <section class="flash-stack">
+                {% for message in messages %}
+                    <div class="flash {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </section>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{% extends "students/base.html" %}
+{% block title %}Room Transfer | GU Dorms{% endblock %}
+{% block page_title %}Room Transfer Request{% endblock %}
+{% block content %}
+<section class="form-card">
+    <p class="muted">Current room: {{ assignment.room.building.building_name }} · {{ assignment.room.room_number }}</p>
+    <form method="post" class="stack-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <label>
+                <span>{{ field.label }}</span>
+                {{ field }}
+                {{ field.errors }}
+            </label>
+        {% endfor %}
+        <button class="primary-button" type="submit">Submit transfer request</button>
+    </form>
+</section>
+{% endblock %}
