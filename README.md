@@ -40,7 +40,7 @@ This is a green Galala University Tkinter desktop dashboard for the `GUDorms` My
 - Repairs and validates more derived operational data: visitor-pass expiry, meal-plan expiry, overdue penalties, room-inspection rollups, building-maintenance rollups, and impossible assignment date order.
 - Creates in-app student notifications for important admin-side changes such as penalties, incidents, application decisions, permission decisions, finance updates, and request status changes.
 - Adds department workspaces for Housing, Finance, People & Staff, Maintenance & Assets, Security & Visitors, Services, Buildings & Rooms, and Admin.
-- Provides safer CRUD screens for the schema tables.
+- Provides safer  CRUD screens for the schema tables.
 - Keeps advanced schema-aware CRUD inside the Advanced Data Manager.
 - Keeps sidebar modules stable even if MySQL returns table names in lowercase.
 - Uses dropdowns for enum fields, booleans, and foreign key IDs where possible.
